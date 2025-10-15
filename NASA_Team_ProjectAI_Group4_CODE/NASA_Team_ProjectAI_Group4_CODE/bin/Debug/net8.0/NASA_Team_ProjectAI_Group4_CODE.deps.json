@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "NASA_Team_ProjectAI_Group4_CODE/1.0.0": {
+        "runtime": {
+          "NASA_Team_ProjectAI_Group4_CODE.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "NASA_Team_ProjectAI_Group4_CODE/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

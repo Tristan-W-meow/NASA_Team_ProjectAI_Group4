@@ -14,24 +14,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Petyourlocalcat\\Documents\\School\\Code\\NASA\\NASA_Team_ProjectAI_Group4\\NASA_Team_ProjectAI_Group4_CODE\\NASA_Team_ProjectAI_Group4_CODE\\Program.cs",
               "RelativeDocumentMoniker": "NASA_Team_ProjectAI_Group4_CODE\\Program.cs",
-              "ToolTip": "C:\\Users\\Petyourlocalcat\\Documents\\School\\Code\\NASA\\NASA_Team_ProjectAI_Group4\\NASA_Team_ProjectAI_Group4_CODE\\NASA_Team_ProjectAI_Group4_CODE\\Program.cs*",
-              "RelativeToolTip": "NASA_Team_ProjectAI_Group4_CODE\\Program.cs*",
+              "ToolTip": "C:\\Users\\Petyourlocalcat\\Documents\\School\\Code\\NASA\\NASA_Team_ProjectAI_Group4\\NASA_Team_ProjectAI_Group4_CODE\\NASA_Team_ProjectAI_Group4_CODE\\Program.cs",
+              "RelativeToolTip": "NASA_Team_ProjectAI_Group4_CODE\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-15T22:14:58.414Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
             }
           ]
         }

@@ -39,43 +39,162 @@
 
         private static Dictionary<int, int> GetUserRanks(IReadOnlyList<Item> items)
         {
-            var ranks = new Dictionary<int, int>(items.Count);
-            var usedRanks = new HashSet<int>();
+            // ranks[i] == 0 means unset
+            var ranks = new int[items.Count];
+            var usedRanks = new Dictionary<int, int>(); // rank -> index
 
-            for (int i = 0; i < items.Count; i++)
+            void PrintAssignments()
             {
-                while (true)
+                Console.Clear();
+                Console.WriteLine("Current assignments (blank = unset):\n");
+                for (int i = 0; i < items.Count; i++)
                 {
-                    Console.WriteLine("{0}. {1}", i + 1, items[i].Name);
-                    Console.Write("Enter rank for this item (1-{0}): ", items.Count);
-                    var input = Console.ReadLine();
-
-                    if (!int.TryParse(input, out int rank))
-                    {
-                        Console.WriteLine("Invalid number. Try again.\n");
-                        continue;
-                    }
-
-                    if (rank < 1 || rank > items.Count)
-                    {
-                        Console.WriteLine("Rank out of range. Try again.\n");
-                        continue;
-                    }
-
-                    if (usedRanks.Contains(rank))
-                    {
-                        Console.WriteLine("Rank already used. Choose a different rank.\n");
-                        continue;
-                    }
-
-                    usedRanks.Add(rank);
-                    ranks[i] = rank;
-                    Console.WriteLine("Recorded: {0} => {1}\n", items[i].Name, rank);
-                    break;
+                    string assigned = ranks[i] == 0 ? "-" : ranks[i].ToString();
+                    Console.WriteLine("{0,2}. {1,-45} => {2}", i + 1, items[i].Name, assigned);
                 }
+                Console.WriteLine();
+                Console.WriteLine("Commands: <item#> to set/change a rank for that item");
+                Console.WriteLine("          done   - finish (requires all items ranked)");
+                Console.WriteLine("          clear  - clear a rank by item number (e.g. \"clear 3\")");
+                Console.WriteLine("When assigning a rank already in use you will be offered to swap/override.\n");
             }
 
-            return ranks;
+            while (true)
+            {
+                PrintAssignments();
+
+                // If all assigned, prompt to finish or edit
+                if (ranks.All(r => r > 0))
+                {
+                    Console.Write("All items ranked. Type 'done' to finish or enter an item number to change: ");
+                }
+                else
+                {
+                    Console.Write("Enter item number to set/change (1-{0}), or 'done' to finish later: ", items.Count);
+                }
+
+                var input = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(input))
+                    continue;
+
+                if (input.Equals("done", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (ranks.All(r => r > 0))
+                        break;
+                    Console.WriteLine("Not all items have been ranked yet. Continue assigning.\nPress any key...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                // clear command: "clear 3"
+                if (input.StartsWith("clear ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 2 && int.TryParse(parts[1], out int clearIndex) && clearIndex >= 1 && clearIndex <= items.Count)
+                    {
+                        int idx = clearIndex - 1;
+                        if (ranks[idx] > 0)
+                        {
+                            usedRanks.Remove(ranks[idx]);
+                            ranks[idx] = 0;
+                            Console.WriteLine("Cleared rank for item {0}.", clearIndex);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Item {0} was already unset.", clearIndex);
+                        }
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        continue;
+                    }
+                }
+
+                if (!int.TryParse(input, out int itemNumber) || itemNumber < 1 || itemNumber > items.Count)
+                {
+                    Console.WriteLine("Invalid command or item number. Press any key to continue...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                int index = itemNumber - 1;
+                Console.Write("Enter rank for '{0}' (1-{1}) or leave blank to cancel: ", items[index].Name, items.Count);
+                var rankInput = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(rankInput))
+                {
+                    continue;
+                }
+
+                if (!int.TryParse(rankInput, out int rank) || rank < 1 || rank > items.Count)
+                {
+                    Console.WriteLine("Invalid rank. Press any key to continue...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                if (usedRanks.TryGetValue(rank, out int occupyingIndex) && occupyingIndex != index)
+                {
+                    Console.WriteLine("Rank {0} is currently assigned to item {1}: '{2}'", rank, occupyingIndex + 1, items[occupyingIndex].Name);
+                    Console.Write("Type 'swap' to swap ranks, 'override' to take rank and unset previous, anything else to cancel: ");
+                    var choice = Console.ReadLine()?.Trim();
+                    if (choice != null && choice.Equals("swap", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // swap
+                        int previousRank = ranks[index];
+                        ranks[occupyingIndex] = previousRank;
+                        if (previousRank > 0)
+                        {
+                            usedRanks[previousRank] = occupyingIndex;
+                        }
+                        else
+                        {
+                            usedRanks.Remove(previousRank);
+                        }
+
+                        ranks[index] = rank;
+                        usedRanks[rank] = index;
+                        Console.WriteLine("Swapped ranks between item {0} and item {1}.", index + 1, occupyingIndex + 1);
+                    }
+                    else if (choice != null && choice.Equals("override", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // override: unset previous
+                        ranks[occupyingIndex] = 0;
+                        usedRanks.Remove(rank);
+
+                        // assign new
+                        if (ranks[index] > 0)
+                            usedRanks.Remove(ranks[index]);
+
+                        ranks[index] = rank;
+                        usedRanks[rank] = index;
+                        Console.WriteLine("Rank {0} moved to item {1}; previous item {2} is now unset.", rank, index + 1, occupyingIndex + 1);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Assignment cancelled.");
+                    }
+
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                // rank not in use or assigning same rank to same item
+                if (ranks[index] > 0)
+                {
+                    // freeing previous rank
+                    usedRanks.Remove(ranks[index]);
+                }
+
+                ranks[index] = rank;
+                usedRanks[rank] = index;
+            }
+
+            // build dictionary result
+            var result = new Dictionary<int, int>(items.Count);
+            for (int i = 0; i < items.Count; i++)
+                result[i] = ranks[i];
+
+            return result;
         }
 
         private static void PrintComparison(IReadOnlyList<Item> items, IReadOnlyDictionary<int, int> userRanks)

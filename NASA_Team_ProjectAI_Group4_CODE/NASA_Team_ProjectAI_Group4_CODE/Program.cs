@@ -1,4 +1,8 @@
-﻿namespace NASA_Team_ProjectAI_Group4_CODE
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace NASA_Team_ProjectAI_Group4_CODE
 {
     internal class Program
     {
